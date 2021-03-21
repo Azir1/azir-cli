@@ -1,3 +1,3 @@
-module.exports = ()=>{
-  console.log('config')
+module.exports = () => {
+  // console.log('config')
 }

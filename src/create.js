@@ -8,16 +8,17 @@ const axios = require('axios')
 const path = require('path')
 const ora = require('ora')
 const Inquirer = require('inquirer')
-const { downloadDirectory } = require('./constans')
 const { promisify } = require('util')
 const fs = require('fs')
 // 遍历文件夹，找需不需要渲染
 const MetalSmith = require('metalsmith')
 // consolidate统一了  所有的模板引擎
 let { render } = require('consolidate').ejs
+
 render = promisify(render)
 let ncp = require('ncp')
 let downloadGitRepo = require('download-git-repo')
+const { downloadDirectory } = require('./constans')
 // promisify将异步回掉转成promise
 downloadGitRepo = promisify(downloadGitRepo)
 ncp = promisify(ncp)
@@ -37,11 +38,10 @@ const download = async (repo, tag) => {
   if (tag) {
     api += `#${tag}`
   }
-  let dest = `${downloadDirectory}/${repo}`
+  const dest = `${downloadDirectory}/${repo}`
   await downloadGitRepo(api, dest)
   return dest // 下载的最终目录
 }
-
 
 // 封装loading效果，这边使用高阶函数，相当于是返回了一个匿名函数,分开传参，也是柯里化的思想
 const waitLoading = (fn, msg) => async (...args) => {
@@ -49,7 +49,7 @@ const waitLoading = (fn, msg) => async (...args) => {
   const spinner = ora(msg)
   spinner.start()
   // 获取模板
-  let repos = await fn(...args)
+  const repos = await fn(...args)
   // 获取之前显示loading，关闭loading
   spinner.succeed()
   return repos
@@ -57,33 +57,33 @@ const waitLoading = (fn, msg) => async (...args) => {
 
 module.exports = async (projectName) => {
   // 获取模板
-  let repos = await waitLoading(fetchRepoList, 'fetching template...')()
-  let reposName = repos.map(item => item.name)
+  const repos = await waitLoading(fetchRepoList, 'fetching template...')()
+  const reposName = repos.map((item) => item.name)
   // console.log(reposName)
 
   // 选择模板inquirer
-  let { repo } = await Inquirer.prompt({
+  const { repo } = await Inquirer.prompt({
     name: 'repo',
     type: 'list',
     message: 'please choice a template to create project',
-    choices: reposName
+    choices: reposName,
   })
-  console.log(repo)
+  // console.log(repo)
 
   // 通过当前选择的项目，拉取对应的版本
   // 获取版本号  https://api.github.com/repos/Azir1/vue-ts-memo/tags
-  let versions = await waitLoading(fetchVersion, 'please wait...')(repo)
-  let versionName = versions.map(item => item.name)
-  let { version } = await Inquirer.prompt({
+  const versions = await waitLoading(fetchVersion, 'please wait...')(repo)
+  const versionName = versions.map((item) => item.name)
+  const { version } = await Inquirer.prompt({
     name: 'version',
     type: 'list',
     message: 'please choice a version to create project',
-    choices: versionName
+    choices: versionName,
   })
 
   // 下载模板后，放到一个临时目录，以备后期使用，缓存
   // download-git-repo
-  let res = await download(repo, version)
+  const res = await download(repo, version)
   console.log(res, '路径')
   // 先判断项目名字是否存在，存在就提示当前已经存在
   // 如果有ask.js文件
@@ -105,10 +105,10 @@ module.exports = async (projectName) => {
           done()
         })
         .use((files, metal, done) => {
-          let obj = metal.metadata()
+          const obj = metal.metadata()
           console.log(metal.metadata())
           // 渲染模板，后会自动输出到根目录下
-          Reflect.ownKeys(files).forEach(async file => {
+          Reflect.ownKeys(files).forEach(async (file) => {
             // 找出配置文件，渲染到类似package.json中的<%>引擎中
             if (file.includes('js') || file.includes('json')) {
               let content = files[file].content.toString() // 文件的内容
@@ -120,7 +120,7 @@ module.exports = async (projectName) => {
           })
           done()
         })
-        .build(err => {
+        .build((err) => {
           if (err) {
             reject()
           } else {
@@ -134,6 +134,4 @@ module.exports = async (projectName) => {
     // 拿到了下载的目录，简单模板直接拷贝当前执行的目录下即可 ncp
     ncp(res, path.resolve(projectName))
   }
-
-
 }
