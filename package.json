@@ -1,0 +1,33 @@
+{
+  "name": "azir-cli",
+  "version": "1.0.1",
+  "description": "自制脚手架",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "azir-cli": "./bin/www"
+  },
+  "keywords": [
+    "脚手架"
+  ],
+  "author": "azir",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "commander": "^7.1.0",
+    "consolidate": "^0.16.0",
+    "download-git-repo": "^3.0.2",
+    "ejs": "^3.1.6",
+    "inquirer": "^8.0.0",
+    "metalsmith": "^2.3.0",
+    "ncp": "^2.0.0",
+    "ora": "^5.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.22.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1"
+  }
+}
